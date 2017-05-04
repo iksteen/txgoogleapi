@@ -1,3 +1,6 @@
+import datetime
+
+
 def BOOL(val):
     return 'true' if val else 'false'
 
@@ -26,6 +29,12 @@ def SET(*set_values):
         else:
             raise ValueError('%s not in %s' % (val, set_values))
     return proxy
+
+
+def DATETIME(dt):
+    if not isinstance(dt, datetime.datetime):
+        raise TypeError('%s not a datetime')
+    return dt.isoformat()
 
 
 class GoogleApi(object):
@@ -76,7 +85,7 @@ class GoogleApiEndPoint(object):
                     if val is not None:
                         query[arg_name] = arg_decl(val)
                         filter_count += 1
-                if filter_count != 1:
+                if not decl.get('min_filters', 1) <= filter_count <= decl.get('max_filters', 1):
                     raise RuntimeError('must specify exactly one of %s' % ', '.join(decl['filter']))
 
             if 'optional' in decl:
